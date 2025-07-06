@@ -1,8 +1,8 @@
-import { authMiddleware } from "@clerk/nextjs/server";
+import { authMiddleware } from "@clerk/nextjs";
 
 export default authMiddleware({
-  // The homepage ("/") is accessible to everyone, logged in or not.
-  // All other pages, like "/dashboard", will be protected.
+  // Make the homepage ("/") public so everyone can see it.
+  // All other routes, like your dashboard, will be protected by default.
   publicRoutes: ["/"],
 });
 
