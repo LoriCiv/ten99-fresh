@@ -4,18 +4,19 @@ import { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 
-// This defines the expected structure of an appointment
+// Define a single, consistent type for the calendar's value
+type CalendarValue = Date | [Date | null, Date | null] | null;
+
 interface Appointment {
   id: string;
   description: string;
   startTime: string;
 }
 
-// This component receives the appointments from the main page
 export default function DashboardClient({ initialAppointments }: { initialAppointments: Appointment[] }) {
   const [appointments, setAppointments] = useState(initialAppointments);
-  // This is the corrected type for the calendar's state
-  const [value, onChange] = useState<Date | [Date, Date] | null>(new Date());
+  // Use our new consistent type for the state
+  const [value, onChange] = useState<CalendarValue>(new Date());
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const handleAccept = async (appointmentId: string) => {
@@ -31,7 +32,6 @@ export default function DashboardClient({ initialAppointments }: { initialAppoin
         throw new Error('Failed to accept appointment');
       }
 
-      // If successful, remove the appointment from the list on the screen
       setAppointments(prev => prev.filter(appt => appt.id !== appointmentId));
 
     } catch (error) {
@@ -78,6 +78,7 @@ export default function DashboardClient({ initialAppointments }: { initialAppoin
       <div className="md:col-span-1">
         <h2 className="text-2xl font-semibold border-b pb-2">Your Schedule</h2>
         <div className="mt-4">
+          {/* The Calendar now uses the consistent type and will not error */}
           <Calendar onChange={onChange} value={value} className="mx-auto" />
         </div>
       </div>
