@@ -1,19 +1,21 @@
 import admin from 'firebase-admin';
-import DashboardClient from './DashboardClient';
+import DashboardClient from './DashboardClient'; // Import the new component
 
+// This safely initializes Firebase on the server
 if (!admin.apps.length) {
   try {
     const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY as string);
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount)
     });
-  } catch (error) {
-    console.error('Firebase Admin Initialization Error:', (error as Error).message);
+  } catch (error: any) {
+    console.error('Firebase Admin Initialization Error:', error.message);
   }
 }
 
 const db = admin.firestore();
 
+// Define a type for our appointment data
 interface Appointment {
   id: string;
   description: string;
@@ -32,19 +34,22 @@ async function getPendingAppointments(): Promise<Appointment[]> {
       startTime: doc.data().startTime,
     })) as Appointment[];
     return appointments;
-  } catch (error) {
-    console.error("Error fetching appointments:", (error as Error).message);
+  } catch (error: any) {
+    console.error("Error fetching appointments:", error.message);
     return []; 
   }
 }
 
+// This is the main page component
 export default async function DashboardPage() {
+  // 1. Fetch data on the server
   const appointments = await getPendingAppointments();
 
+  // 2. Render the Client Component and pass the data to it as a prop
   return (
     <>
       <h1 className="text-4xl font-bold text-center mt-8">Admin Dashboard</h1>
-      <DashboardClient appointments={appointments} />
+      <DashboardClient initialAppointments={appointments} />
     </>
   );
 }
