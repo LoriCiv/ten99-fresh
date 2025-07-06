@@ -1,11 +1,9 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { clerkMiddleware } from "@clerk/nextjs/server";
 
-const isProtectedRoute = createRouteMatcher([
-  '/dashboard(.*)',
-]);
-
-export default clerkMiddleware((auth, req) => {
-  if (isProtectedRoute(req)) auth().protect();
+export default clerkMiddleware({
+  // Make the homepage public so everyone can see it.
+  // All other routes, like your dashboard, will be protected by default.
+  publicRoutes: ["/"] 
 });
 
 export const config = {
