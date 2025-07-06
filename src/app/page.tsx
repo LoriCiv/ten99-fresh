@@ -14,7 +14,6 @@ export default function Home() {
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           {/* Left Side: Logo and Name */}
           <Link href="/" className="flex items-center space-x-3">
-            {/* This is the line that adds your logo */}
             <Image src="/logo.png" alt="Ten99 Logo" width={32} height={32} />
             <span className="font-bold text-xl tracking-tight">Ten99</span>
           </Link>
@@ -77,8 +76,9 @@ export default function Home() {
       {/* =================================================================== */}
       <section className="w-full text-center py-24 px-6">
         <h2 className="text-3xl md:text-4xl font-bold mb-4">You Handle the Work. Ten99 Handles the Rest.</h2>
+        {/* === APOSTROPHE FIXES ARE IN THIS PARAGRAPH === */}
         <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-12">
-          Being a freelancer means wearing every hat. From booking jobs to sending invoices to remembering who's paid you—and who hasn't—it’s easy to feel buried in admin work. Ten99 brings it all together into one smart, simple place.
+          Being a freelancer means wearing every hat. From booking jobs to sending invoices to remembering who&apos;s paid you—and who hasn&apos;t—it&apos;s easy to feel buried in admin work. Ten99 brings it all together into one smart, simple place.
         </p>
         <div className="max-w-4xl mx-auto grid md:grid-cols-2 lg:grid-cols-4 gap-8 text-left">
           <div className="p-2"><span className="text-green-500 mr-2">✅</span>View your whole schedule at a glance</div>
@@ -124,7 +124,7 @@ export default function Home() {
           </div>
           <div className="p-4">
             <h3 className="text-xl font-bold mb-2">Tax Season, Without the Stress</h3>
-            <p className="text-gray-600">Smart expense categorization and real-time tax estimates mean you're always prepared. Say goodbye to year-end surprises and hello to confidence.</p>
+            <p className="text-gray-600">Smart expense categorization and real-time tax estimates mean you&apos;re always prepared. Say goodbye to year-end surprises and hello to confidence.</p>
           </div>
         </div>
       </section>
