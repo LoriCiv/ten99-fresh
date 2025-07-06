@@ -36,7 +36,7 @@ export default function Home() {
       </section>
       {/* ================= End of Hero Section ================= */}
 
-{/* ================= How It Works Section ================= */}
+      {/* ================= How It Works Section ================= */}
       <section className="w-full bg-gray-50 py-20 px-8">
         <div className="text-center max-w-4xl mx-auto">
           <h2 className="text-4xl font-bold mb-12">
@@ -54,9 +54,10 @@ export default function Home() {
             {/* Step 2 */}
             <div className="flex flex-col items-center">
               <h3 className="text-2xl font-bold mb-2">2. Let Ten99 Handle It</h3>
+              {/* This is the line we fixed. "client's" is now "client&apos;s" */}
               <p className="text-gray-600">
                 Our AI instantly reads the email, schedules the appointment in 
-                your calendar, and creates or updates the client's profile.
+                your calendar, and creates or updates the client&apos;s profile.
               </p>
             </div>
             {/* Step 3 */}
@@ -71,8 +72,6 @@ export default function Home() {
         </div>
       </section>
       {/* ============== End of How It Works Section ============== */}
-
-
     </main>
   );
 }
