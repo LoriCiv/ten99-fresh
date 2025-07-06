@@ -1,134 +1,78 @@
-"use client";
+import { SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import Link from "next/link";
 
-import { useState, useEffect } from 'react';
-
-export default function App() {
-  const [emailText, setEmailText] = useState('');
-  const [apiResponse, setApiResponse] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
-  const [year, setYear] = useState(new Date().getFullYear());
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setIsLoading(true);
-    setApiResponse('');
-    setIsError(false);
-
-    if (!emailText.trim()) {
-        setApiResponse('Please paste some email text before submitting.');
-        setIsError(true);
-        setIsLoading(false);
-        return;
-    }
-
-    try {
-      const response = await fetch('https://api.ten99.app/api/extract', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ emailText }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        const cleanedResponse = data.aiResponse.replace(/```json\n|\n```/g, '');
-        setApiResponse(JSON.stringify(JSON.parse(cleanedResponse), null, 2));
-      } else {
-        setApiResponse(`Error from API: ${data.error}`);
-        setIsError(true);
-      }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (_error) {
-      setApiResponse(`An error occurred: Failed to connect to the API. Please try again.`);
-      setIsError(true);
-    }
-
-    setIsLoading(false);
-  };
-
-  useEffect(() => {
-    setYear(new Date().getFullYear());
-  }, []);
-
+export default function Home() {
   return (
-    <div className="bg-gray-50 font-sans antialiased text-gray-800">
-      <header className="bg-white shadow-sm sticky top-0 z-10">
-        <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="text-2xl font-bold text-indigo-600">Ten99</div>
-          <div>
-            <a
-              href="#"
-              className="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors duration-300"
-            >
-              Sign In
-            </a>
-          </div>
-        </nav>
-      </header>
-
-      <main className="container mx-auto px-6 py-20 text-center">
-        <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight">
-          Your Freelancing, Simplified.
+    // The main container for our page
+    <main className="flex flex-col items-center bg-white text-black">
+      
+      {/* ==================== Hero Section ==================== */}
+      <section className="text-center w-full max-w-4xl py-20 px-8">
+        <h1 className="text-5xl md:text-7xl font-bold mb-4">
+          Stop Juggling. Start Working.
         </h1>
-        <p className="mt-6 text-xl text-gray-600 max-w-2xl mx-auto">
-          Ten99 is the all-in-one platform that automates your invoicing, tracks
-          expenses, and prepares you for tax time, so you can focus on what you
-          do best.
+        <p className="text-lg md:text-xl text-gray-700 mb-8">
+          Ten99 is the smart admin assistant that turns your work request emails 
+          into scheduled jobs, client profiles, and paid invoices, automatically. 
+          Reclaim your day from busywork.
         </p>
-        <div className="mt-8">
-          <a
-            href="#process"
-            className="bg-indigo-600 text-white font-bold py-4 px-8 rounded-lg text-lg hover:bg-indigo-700 transition-colors duration-300 shadow-lg"
-          >
-            Get Started for Free
-          </a>
-        </div>
-      </main>
+        <SignedOut>
+          <SignInButton mode="modal">
+            <button className="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-lg hover:bg-blue-700">
+              Get Started for Free
+            </button>
+          </SignInButton>
+        </SignedOut>
+        <SignedIn>
+          <Link href="/dashboard">
+            <button className="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-lg hover:bg-blue-700">
+              Go to Your Dashboard
+            </button>
+          </Link>
+        </SignedIn>
+        <p className="text-sm text-gray-500 mt-4">
+          No credit card required.
+        </p>
+      </section>
+      {/* ================= End of Hero Section ================= */}
 
-      <section id="process" className="bg-white py-24">
-        <div className="container mx-auto px-6 max-w-xl">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900">Process an Email</h2>
-            <p className="mt-4 text-lg text-gray-600">
-              Paste the body of a job offer email below to see the magic.
-            </p>
-          </div>
-          <div className="bg-white p-8 rounded-lg shadow-2xl">
-            <form onSubmit={handleSubmit}>
-              <textarea
-                value={emailText}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEmailText(e.target.value)}
-                className="w-full h-40 p-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                placeholder="Paste email text here..."
-              ></textarea>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="mt-6 w-full bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors duration-300 disabled:bg-indigo-400 disabled:cursor-not-allowed"
-              >
-                {isLoading ? 'Processing...' : 'Extract Appointment Info'}
-              </button>
-            </form>
-            {apiResponse && (
-              <div className="mt-6 text-left">
-                <h3 className="font-semibold text-gray-800">Result:</h3>
-                <pre className={`mt-2 p-4 bg-gray-100 rounded-md whitespace-pre-wrap ${isError ? 'text-red-600' : ''}`}>
-                  {apiResponse}
-                </pre>
-              </div>
-            )}
+{/* ================= How It Works Section ================= */}
+      <section className="w-full bg-gray-50 py-20 px-8">
+        <div className="text-center max-w-4xl mx-auto">
+          <h2 className="text-4xl font-bold mb-12">
+            Your Entire Workflow in a Single Email
+          </h2>
+          <div className="grid md:grid-cols-3 gap-12">
+            {/* Step 1 */}
+            <div className="flex flex-col items-center">
+              <h3 className="text-2xl font-bold mb-2">1. Forward Your Email</h3>
+              <p className="text-gray-600">
+                When you get a work request from a client or agency, simply 
+                forward it to your unique Ten99 address.
+              </p>
+            </div>
+            {/* Step 2 */}
+            <div className="flex flex-col items-center">
+              <h3 className="text-2xl font-bold mb-2">2. Let Ten99 Handle It</h3>
+              <p className="text-gray-600">
+                Our AI instantly reads the email, schedules the appointment in 
+                your calendar, and creates or updates the client's profile.
+              </p>
+            </div>
+            {/* Step 3 */}
+            <div className="flex flex-col items-center">
+              <h3 className="text-2xl font-bold mb-2">3. Get Paid Faster</h3>
+              <p className="text-gray-600">
+                The moment the job is done, Ten99 automatically generates and
+                sends the invoice. No delays, no forgetting.
+              </p>
+            </div>
           </div>
         </div>
       </section>
+      {/* ============== End of How It Works Section ============== */}
 
-      <footer className="bg-gray-800 text-white py-12">
-        <div className="container mx-auto px-6 text-center">
-          <p>&copy; {year} Ten99. All rights reserved.</p>
-        </div>
-      </footer>
-    </div>
+
+    </main>
   );
 }
