@@ -38,14 +38,16 @@ export default function DashboardClient() {
   const handleAccept = async (appointmentToAccept: Appointment) => {
     setLoadingId(appointmentToAccept.id);
     try {
-      await fetch('/api/accept', {
+      const response = await fetch('/api/accept', {
         method: 'POST',
         body: JSON.stringify({ id: appointmentToAccept.id }),
       });
+       if (!response.ok) throw new Error('Failed to accept appointment');
       const newlyConfirmed = { ...appointmentToAccept, status: 'confirmed' };
       setConfirmed(prev => [...prev, newlyConfirmed].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()));
       setPending(prev => prev.filter(appt => appt.id !== appointmentToAccept.id));
     } catch (error) {
+      console.error("Error accepting appointment:", error);
       alert("There was an error accepting the appointment.");
     } finally {
       setLoadingId(null);
@@ -55,12 +57,14 @@ export default function DashboardClient() {
   const handleDecline = async (appointmentId: string) => {
     setLoadingId(appointmentId);
     try {
-      await fetch('/api/decline', {
+      const response = await fetch('/api/decline', {
         method: 'POST',
         body: JSON.stringify({ id: appointmentId }),
       });
+      if (!response.ok) throw new Error('Failed to decline appointment');
       setPending(prev => prev.filter(appt => appt.id !== appointmentId));
     } catch (error) {
+      console.error("Error declining appointment:", error);
       alert("There was an error declining the appointment.");
     } finally {
       setLoadingId(null);
