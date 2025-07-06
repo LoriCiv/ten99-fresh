@@ -8,13 +8,13 @@ if (!admin.apps.length) {
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount)
     });
-  } catch (error: any) {
-    console.error('Firebase Admin Initialization Error:', error.message);
+  } catch (error) {
+    console.error('Firebase Admin Initialization Error:', (error as Error).message);
   }
 }
 const db = admin.firestore();
 
-export const dynamic = 'force-dynamic'; // Ensures this route is always run on the server
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
@@ -25,8 +25,8 @@ export async function GET() {
     const confirmed = confirmedSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
     return NextResponse.json({ pending, confirmed });
-  } catch (error: any) {
-    console.error("Error fetching appointments:", error.message);
+  } catch (error) {
+    console.error("Error fetching appointments:", (error as Error).message);
     return NextResponse.json({ error: 'Failed to fetch appointments' }, { status: 500 });
   }
 }
