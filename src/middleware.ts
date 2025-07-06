@@ -1,9 +1,8 @@
 import { auth } from '@clerk/nextjs/server';
-import { NextRequest, NextResponse } from 'next/server';
 
-export default auth((req: NextRequest) => {
-  // Your logic here to protect routes if needed.
-  // We can add protection rules later.
+export default auth(() => {
+  // This is where you could add rules to protect pages,
+  // but for now, we leave it empty to allow access to all pages.
 });
 
 export const config = {
