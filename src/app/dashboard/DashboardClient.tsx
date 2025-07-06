@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 
@@ -12,20 +12,36 @@ interface Appointment {
   startTime: string;
 }
 
-export default function DashboardClient({ initialPending, initialConfirmed }: { initialPending: Appointment[], initialConfirmed: Appointment[] }) {
-  const [pending, setPending] = useState(initialPending);
-  const [confirmed, setConfirmed] = useState(initialConfirmed);
+export default function DashboardClient() {
+  const [pending, setPending] = useState<Appointment[]>([]);
+  const [confirmed, setConfirmed] = useState<Appointment[]>([]);
+  const [isLoading, setIsLoading] = useState(true); // This line was missing
   const [selectedDate, setSelectedDate] = useState<CalendarValue>(null);
   const [loadingId, setLoadingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const response = await fetch('/api/get-appointments');
+        const data = await response.json();
+        setPending(data.pending || []);
+        setConfirmed(data.confirmed || []);
+      } catch (error) {
+        console.error("Failed to fetch appointments", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchAppointments();
+  }, []);
 
   const handleAccept = async (appointmentToAccept: Appointment) => {
     setLoadingId(appointmentToAccept.id);
     try {
-      const response = await fetch('/api/accept', {
+      await fetch('/api/accept', {
         method: 'POST',
         body: JSON.stringify({ id: appointmentToAccept.id }),
       });
-       if (!response.ok) throw new Error('Failed to accept appointment');
       const newlyConfirmed = { ...appointmentToAccept, status: 'confirmed' };
       setConfirmed(prev => [...prev, newlyConfirmed].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()));
       setPending(prev => prev.filter(appt => appt.id !== appointmentToAccept.id));
@@ -40,11 +56,10 @@ export default function DashboardClient({ initialPending, initialConfirmed }: { 
   const handleDecline = async (appointmentId: string) => {
     setLoadingId(appointmentId);
     try {
-      const response = await fetch('/api/decline', {
+      await fetch('/api/decline', {
         method: 'POST',
         body: JSON.stringify({ id: appointmentId }),
       });
-      if (!response.ok) throw new Error('Failed to decline appointment');
       setPending(prev => prev.filter(appt => appt.id !== appointmentId));
     } catch (error) {
       console.error("Error declining appointment:", error);
