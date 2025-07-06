@@ -11,17 +11,18 @@ interface Appointment {
   startTime: string;
 }
 
-// This component receives the appointments as a prop
+// This component receives the appointments from the main page
 export default function DashboardClient({ initialAppointments }: { initialAppointments: Appointment[] }) {
   const [appointments, setAppointments] = useState(initialAppointments);
-  const [value, onChange] = useState<any>(new Date());
+  // This is the corrected type for the calendar's state
+  const [value, onChange] = useState<Date | [Date, Date] | null>(new Date());
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const handleAccept = async (appointmentId: string) => {
-    setLoadingId(appointmentId); // Visually indicate loading
+    setLoadingId(appointmentId); 
 
     try {
-      const response = await fetch('/api/accept', { // Note: we will create this proxy route next
+      const response = await fetch('/api/accept', {
         method: 'POST',
         body: JSON.stringify({ id: appointmentId }),
       });
@@ -37,7 +38,7 @@ export default function DashboardClient({ initialAppointments }: { initialAppoin
       console.error("Error:", error);
       alert("There was an error accepting the appointment.");
     } finally {
-      setLoadingId(null); // Stop loading indicator
+      setLoadingId(null);
     }
   };
 
