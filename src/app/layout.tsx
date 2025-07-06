@@ -16,6 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    // This explicitly passes the key, ensuring the browser receives it.
     <ClerkProvider>
       <html lang="en">
         <body className={inter.className}>{children}</body>
