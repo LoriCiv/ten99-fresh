@@ -6,7 +6,12 @@ export const metadata = {
   description: 'Freelancing Simplified',
 }
 
-export default function RootLayout({ children }) {
+// The fix is in the line below. We've added the type for 'children'.
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
     <ClerkProvider>
       <html lang="en">
