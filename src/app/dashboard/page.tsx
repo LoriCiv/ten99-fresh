@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import admin from 'firebase-admin';
 import DashboardClient from './DashboardClient';
 
