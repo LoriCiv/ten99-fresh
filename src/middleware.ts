@@ -1,6 +1,8 @@
 import { auth } from '@clerk/nextjs/server';
 
-export default auth;
+export default auth({
+  debug: true
+});
 
 export const config = {
   // The following matcher runs middleware on all routes
