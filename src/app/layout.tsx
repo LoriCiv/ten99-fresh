@@ -1,7 +1,6 @@
 export default function RootLayout({ children }) {
   // The return statement begins here
   return (
-    // ClerkProvider starts here. It is the top-level component.
     <ClerkProvider>
 
       {/* Everything inside ClerkProvider is its "child" */}
