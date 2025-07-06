@@ -1,14 +1,13 @@
-import { authMiddleware } from "@clerk/nextjs";
+import { auth } from '@clerk/nextjs/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export default authMiddleware({
-  // Make the homepage ("/") public so everyone can see it.
-  // All other routes, like your dashboard, will be protected by default.
-  publicRoutes: ["/"],
+export default auth((req: NextRequest) => {
+  // Your logic here to protect routes if needed.
+  // We can add protection rules later.
 });
 
 export const config = {
-  // Protects all routes, including api/trpc.
-  // See https://clerk.com/docs/references/nextjs/auth-middleware
-  // for more information about configuring your Middleware
-  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
+  // The following matcher runs middleware on all routes
+  // except static assets.
+  matcher: [ '/((?!.*\\..*|_next).*)', '/', '/(api|trpc)(.*)'],
 };
