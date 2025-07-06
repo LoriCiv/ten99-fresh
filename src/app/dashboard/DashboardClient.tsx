@@ -4,6 +4,10 @@ import { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 
+// This is the type definition that the react-calendar library expects
+type ValuePiece = Date | null;
+type Value = ValuePiece | [ValuePiece, ValuePiece];
+
 interface Appointment {
   id: string;
   description: string;
@@ -11,10 +15,12 @@ interface Appointment {
 }
 
 export default function DashboardClient({ appointments }: { appointments: Appointment[] }) {
-  const [value, onChange] = useState<Date | [Date, Date] | null>(new Date());
+  // Use the correct 'Value' type for the state
+  const [value, onChange] = useState<Value>(new Date());
 
   return (
     <div className="p-8 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+      
       <div className="md:col-span-2">
         <h2 className="text-2xl font-semibold border-b pb-2">Pending Appointments</h2>
         <div className="mt-4 space-y-4">
@@ -34,12 +40,15 @@ export default function DashboardClient({ appointments }: { appointments: Appoin
           )}
         </div>
       </div>
+
       <div className="md:col-span-1">
         <h2 className="text-2xl font-semibold border-b pb-2">Your Schedule</h2>
         <div className="mt-4">
+          {/* The Calendar component now has the correct types for its props */}
           <Calendar onChange={onChange} value={value} className="mx-auto" />
         </div>
       </div>
+
     </div>
   );
-}
+}          
