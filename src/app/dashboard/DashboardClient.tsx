@@ -4,40 +4,32 @@ import { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 
-// Type for the calendar's value
 type CalendarValue = Date | [Date | null, Date | null] | null;
 
-// Type for an appointment
 interface Appointment {
   id: string;
   description: string;
   startTime: string;
 }
 
-// The component now accepts two lists of appointments
 export default function DashboardClient({ initialPending, initialConfirmed }: { initialPending: Appointment[], initialConfirmed: Appointment[] }) {
   const [pending, setPending] = useState(initialPending);
   const [confirmed, setConfirmed] = useState(initialConfirmed);
-  const [calendarDate, setCalendarDate] = useState<CalendarValue>(new Date());
+  // This new state will hold the date the user clicks on
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const handleAccept = async (appointmentToAccept: Appointment) => {
     setLoadingId(appointmentToAccept.id);
-
     try {
       const response = await fetch('/api/accept', {
         method: 'POST',
         body: JSON.stringify({ id: appointmentToAccept.id }),
       });
-
       if (!response.ok) throw new Error('Failed to accept appointment');
-
-      // Add the accepted appointment to the confirmed list
-      // and remove it from the pending list
       const newlyConfirmed = { ...appointmentToAccept, status: 'confirmed' };
       setConfirmed(prev => [...prev, newlyConfirmed]);
       setPending(prev => prev.filter(appt => appt.id !== appointmentToAccept.id));
-      
     } catch (error) {
       console.error("Error:", error);
       alert("There was an error accepting the appointment.");
@@ -46,22 +38,22 @@ export default function DashboardClient({ initialPending, initialConfirmed }: { 
     }
   };
 
-  // --- NEW FUNCTION TO ADD DOTS TO CALENDAR ---
   const tileContent = ({ date, view }: { date: Date; view: string }) => {
     if (view === 'month') {
-      // Find if there is a confirmed appointment on this date
       const hasAppointment = confirmed.some(
         (appt) => new Date(appt.startTime).toDateString() === date.toDateString()
       );
-
-      // If there is an appointment, return a dot
       if (hasAppointment) {
         return <div className="h-2 w-2 bg-blue-500 rounded-full mx-auto mt-1"></div>;
       }
     }
-    return null; // Return null if no appointment
+    return null;
   };
-  // --- END OF NEW FUNCTION ---
+
+  // --- NEW: This logic filters the confirmed list based on the selected date ---
+  const filteredConfirmed = selectedDate
+    ? confirmed.filter(appt => new Date(appt.startTime).toDateString() === selectedDate.toDateString())
+    : confirmed; // If no date is selected, show all confirmed appointments
 
   return (
     <div className="p-8 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -97,19 +89,34 @@ export default function DashboardClient({ initialPending, initialConfirmed }: { 
             </div>
         </div>
         
-        {/* Confirmed Appointments Section */}
+        {/* Confirmed Appointments Section - UPDATED */}
         <div>
-            <h2 className="text-2xl font-semibold border-b pb-2">Confirmed Appointments</h2>
+            <div className="flex justify-between items-center border-b pb-2">
+              <h2 className="text-2xl font-semibold">Confirmed Appointments</h2>
+              {/* NEW: Button to clear the filter */}
+              {selectedDate && (
+                <button
+                  onClick={() => setSelectedDate(null)}
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  Show All
+                </button>
+              )}
+            </div>
             <div className="mt-4 space-y-4">
-              {confirmed.length > 0 ? (
-                confirmed.map((appt) => (
+              {/* UPDATED: We now map over the filtered list */}
+              {filteredConfirmed.length > 0 ? (
+                filteredConfirmed.map((appt) => (
                   <div key={appt.id} className="p-4 border rounded-lg shadow-sm bg-green-50">
                     <p><strong>Description:</strong> {appt.description}</p>
                     <p><strong>Start Time:</strong> {new Date(appt.startTime).toLocaleString()}</p>
                   </div>
                 ))
               ) : (
-                <p className="mt-4 text-gray-500">No confirmed appointments.</p>
+                <p className="mt-4 text-gray-500">
+                  {/* Show a different message if a date is selected vs. no appointments at all */}
+                  {selectedDate ? "No appointments on this day." : "No confirmed appointments."}
+                </p>
               )}
             </div>
         </div>
@@ -120,10 +127,10 @@ export default function DashboardClient({ initialPending, initialConfirmed }: { 
         <h2 className="text-2xl font-semibold border-b pb-2">Your Schedule</h2>
         <div className="mt-4">
           <Calendar 
-            onChange={setCalendarDate} 
-            value={calendarDate} 
+            // UPDATED: When a date is clicked, it updates our new state
+            onChange={(value) => setSelectedDate(value as Date)} 
+            value={selectedDate} 
             className="mx-auto"
-            // --- NEW PROP TO RENDER THE DOTS ---
             tileContent={tileContent}
           />
         </div>
