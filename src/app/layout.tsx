@@ -1,25 +1,17 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { ClerkProvider } from '@clerk/nextjs';
-
-const inter = Inter({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  title: "Ten99 App",
-  description: "Your Freelancing, Simplified.",
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }) {
+  // The return statement begins here
   return (
+    // ClerkProvider starts here. It is the top-level component.
     <ClerkProvider>
+
+      {/* Everything inside ClerkProvider is its "child" */}
+      {/* The html tag starts here, inside ClerkProvider. */}
       <html lang="en">
-        <body className={inter.className}>{children}</body>
+        <body>{children}</body>
       </html>
+      {/* The html tag ends here, still inside ClerkProvider. */}
+
     </ClerkProvider>
-  );
+    // ClerkProvider ends here.
+  )
 }
