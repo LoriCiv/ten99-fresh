@@ -6,7 +6,6 @@ export const metadata = {
   description: 'Freelancing Simplified',
 }
 
-// The fix is in the line below. We've added the type for 'children'.
 export default function RootLayout({
   children,
 }: {
