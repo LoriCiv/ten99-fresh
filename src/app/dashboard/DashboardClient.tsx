@@ -32,9 +32,11 @@ export default function DashboardClient({ initialPending, initialConfirmed }: { 
 
       if (!response.ok) throw new Error('Failed to accept appointment');
 
-      // Remove from pending list and add to confirmed list
+      // Add the accepted appointment to the confirmed list
+      // and remove it from the pending list
+      const newlyConfirmed = { ...appointmentToAccept, status: 'confirmed' };
+      setConfirmed(prev => [...prev, newlyConfirmed]);
       setPending(prev => prev.filter(appt => appt.id !== appointmentToAccept.id));
-      setConfirmed(prev => [...prev, { ...appointmentToAccept }]);
       
     } catch (error) {
       console.error("Error:", error);
@@ -43,6 +45,23 @@ export default function DashboardClient({ initialPending, initialConfirmed }: { 
       setLoadingId(null);
     }
   };
+
+  // --- NEW FUNCTION TO ADD DOTS TO CALENDAR ---
+  const tileContent = ({ date, view }: { date: Date; view: string }) => {
+    if (view === 'month') {
+      // Find if there is a confirmed appointment on this date
+      const hasAppointment = confirmed.some(
+        (appt) => new Date(appt.startTime).toDateString() === date.toDateString()
+      );
+
+      // If there is an appointment, return a dot
+      if (hasAppointment) {
+        return <div className="h-2 w-2 bg-blue-500 rounded-full mx-auto mt-1"></div>;
+      }
+    }
+    return null; // Return null if no appointment
+  };
+  // --- END OF NEW FUNCTION ---
 
   return (
     <div className="p-8 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -78,7 +97,7 @@ export default function DashboardClient({ initialPending, initialConfirmed }: { 
             </div>
         </div>
         
-        {/* Confirmed Appointments Section - NEW */}
+        {/* Confirmed Appointments Section */}
         <div>
             <h2 className="text-2xl font-semibold border-b pb-2">Confirmed Appointments</h2>
             <div className="mt-4 space-y-4">
@@ -100,7 +119,13 @@ export default function DashboardClient({ initialPending, initialConfirmed }: { 
       <div className="md:col-span-1">
         <h2 className="text-2xl font-semibold border-b pb-2">Your Schedule</h2>
         <div className="mt-4">
-          <Calendar onChange={setCalendarDate} value={calendarDate} className="mx-auto" />
+          <Calendar 
+            onChange={setCalendarDate} 
+            value={calendarDate} 
+            className="mx-auto"
+            // --- NEW PROP TO RENDER THE DOTS ---
+            tileContent={tileContent}
+          />
         </div>
       </div>
 
