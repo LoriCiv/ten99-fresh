@@ -4,20 +4,21 @@ import { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 
-// This is the type definition that the react-calendar library expects
+// Type for the calendar's value
 type CalendarValue = Date | [Date | null, Date | null] | null;
 
+// Type for an appointment
 interface Appointment {
   id: string;
   description: string;
   startTime: string;
 }
 
+// The component now accepts two lists of appointments
 export default function DashboardClient({ initialPending, initialConfirmed }: { initialPending: Appointment[], initialConfirmed: Appointment[] }) {
   const [pending, setPending] = useState(initialPending);
   const [confirmed, setConfirmed] = useState(initialConfirmed);
-  // This now correctly uses the CalendarValue type we defined
-  const [selectedDate, setSelectedDate] = useState<CalendarValue>(null);
+  const [calendarDate, setCalendarDate] = useState<CalendarValue>(null);
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const handleAccept = async (appointmentToAccept: Appointment) => {
@@ -28,14 +29,35 @@ export default function DashboardClient({ initialPending, initialConfirmed }: { 
         body: JSON.stringify({ id: appointmentToAccept.id }),
       });
       if (!response.ok) throw new Error('Failed to accept appointment');
-
+      
       const newlyConfirmed = { ...appointmentToAccept, status: 'confirmed' };
       setConfirmed(prev => [...prev, newlyConfirmed].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()));
       setPending(prev => prev.filter(appt => appt.id !== appointmentToAccept.id));
-
+      
     } catch (error) {
       console.error("Error:", error);
       alert("There was an error accepting the appointment.");
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
+  // --- NEW FUNCTION FOR THE DECLINE BUTTON ---
+  const handleDecline = async (appointmentId: string) => {
+    setLoadingId(appointmentId);
+    try {
+      const response = await fetch('/api/decline', {
+        method: 'POST',
+        body: JSON.stringify({ id: appointmentId }),
+      });
+      if (!response.ok) throw new Error('Failed to decline appointment');
+
+      // If successful, just remove the appointment from the pending list
+      setPending(prev => prev.filter(appt => appt.id !== appointmentId));
+
+    } catch (error) {
+      console.error("Error:", error);
+      alert("There was an error declining the appointment.");
     } finally {
       setLoadingId(null);
     }
@@ -59,7 +81,7 @@ export default function DashboardClient({ initialPending, initialConfirmed }: { 
 
   return (
     <div className="p-8 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-
+      
       <div className="md:col-span-2 space-y-10">
         <div>
             <h2 className="text-2xl font-semibold border-b pb-2">Pending Appointments</h2>
@@ -79,7 +101,14 @@ export default function DashboardClient({ initialPending, initialConfirmed }: { 
                       >
                         {loadingId === appt.id ? 'Accepting...' : 'Accept'}
                       </button>
-                      <button className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors">Decline</button>
+                      {/* --- UPDATED BUTTON --- */}
+                      <button 
+                        onClick={() => handleDecline(appt.id)}
+                        disabled={loadingId === appt.id}
+                        className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors disabled:bg-gray-400"
+                      >
+                        {loadingId === appt.id ? 'Declining...' : 'Decline'}
+                      </button>
                     </div>
                   </div>
                 ))
@@ -88,7 +117,7 @@ export default function DashboardClient({ initialPending, initialConfirmed }: { 
               )}
             </div>
         </div>
-
+        
         <div>
             <div className="flex justify-between items-center border-b pb-2">
               <h2 className="text-2xl font-semibold">Confirmed Appointments</h2>
@@ -122,7 +151,7 @@ export default function DashboardClient({ initialPending, initialConfirmed }: { 
         <h2 className="text-2xl font-semibold border-b pb-2">Your Schedule</h2>
         <div className="mt-4">
           <Calendar 
-            onChange={setSelectedDate} 
+            onChange={(value) => setSelectedDate(value as Date)} 
             value={selectedDate} 
             className="mx-auto"
             tileContent={tileContent}
