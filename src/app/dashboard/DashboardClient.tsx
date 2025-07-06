@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 
+// This is the type definition that the react-calendar library expects
 type CalendarValue = Date | [Date | null, Date | null] | null;
 
 interface Appointment {
@@ -15,8 +16,8 @@ interface Appointment {
 export default function DashboardClient({ initialPending, initialConfirmed }: { initialPending: Appointment[], initialConfirmed: Appointment[] }) {
   const [pending, setPending] = useState(initialPending);
   const [confirmed, setConfirmed] = useState(initialConfirmed);
-  // This new state will hold the date the user clicks on
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  // This now correctly uses the CalendarValue type we defined
+  const [selectedDate, setSelectedDate] = useState<CalendarValue>(null);
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const handleAccept = async (appointmentToAccept: Appointment) => {
@@ -27,9 +28,11 @@ export default function DashboardClient({ initialPending, initialConfirmed }: { 
         body: JSON.stringify({ id: appointmentToAccept.id }),
       });
       if (!response.ok) throw new Error('Failed to accept appointment');
+
       const newlyConfirmed = { ...appointmentToAccept, status: 'confirmed' };
-      setConfirmed(prev => [...prev, newlyConfirmed]);
+      setConfirmed(prev => [...prev, newlyConfirmed].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()));
       setPending(prev => prev.filter(appt => appt.id !== appointmentToAccept.id));
+
     } catch (error) {
       console.error("Error:", error);
       alert("There was an error accepting the appointment.");
@@ -50,17 +53,14 @@ export default function DashboardClient({ initialPending, initialConfirmed }: { 
     return null;
   };
 
-  // --- NEW: This logic filters the confirmed list based on the selected date ---
   const filteredConfirmed = selectedDate
-    ? confirmed.filter(appt => new Date(appt.startTime).toDateString() === selectedDate.toDateString())
-    : confirmed; // If no date is selected, show all confirmed appointments
+    ? confirmed.filter(appt => new Date(appt.startTime).toDateString() === (selectedDate as Date).toDateString())
+    : confirmed;
 
   return (
     <div className="p-8 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-      
-      {/* Left Column: Appointments */}
+
       <div className="md:col-span-2 space-y-10">
-        {/* Pending Appointments Section */}
         <div>
             <h2 className="text-2xl font-semibold border-b pb-2">Pending Appointments</h2>
             <div className="mt-4 space-y-4">
@@ -88,12 +88,10 @@ export default function DashboardClient({ initialPending, initialConfirmed }: { 
               )}
             </div>
         </div>
-        
-        {/* Confirmed Appointments Section - UPDATED */}
+
         <div>
             <div className="flex justify-between items-center border-b pb-2">
               <h2 className="text-2xl font-semibold">Confirmed Appointments</h2>
-              {/* NEW: Button to clear the filter */}
               {selectedDate && (
                 <button
                   onClick={() => setSelectedDate(null)}
@@ -104,7 +102,6 @@ export default function DashboardClient({ initialPending, initialConfirmed }: { 
               )}
             </div>
             <div className="mt-4 space-y-4">
-              {/* UPDATED: We now map over the filtered list */}
               {filteredConfirmed.length > 0 ? (
                 filteredConfirmed.map((appt) => (
                   <div key={appt.id} className="p-4 border rounded-lg shadow-sm bg-green-50">
@@ -114,7 +111,6 @@ export default function DashboardClient({ initialPending, initialConfirmed }: { 
                 ))
               ) : (
                 <p className="mt-4 text-gray-500">
-                  {/* Show a different message if a date is selected vs. no appointments at all */}
                   {selectedDate ? "No appointments on this day." : "No confirmed appointments."}
                 </p>
               )}
@@ -122,13 +118,11 @@ export default function DashboardClient({ initialPending, initialConfirmed }: { 
         </div>
       </div>
 
-      {/* Right Column: Calendar */}
       <div className="md:col-span-1">
         <h2 className="text-2xl font-semibold border-b pb-2">Your Schedule</h2>
         <div className="mt-4">
           <Calendar 
-            // UPDATED: When a date is clicked, it updates our new state
-            onChange={(value) => setSelectedDate(value as Date)} 
+            onChange={setSelectedDate} 
             value={selectedDate} 
             className="mx-auto"
             tileContent={tileContent}
