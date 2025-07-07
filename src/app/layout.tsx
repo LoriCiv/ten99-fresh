@@ -11,9 +11,11 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // This is our test line to see what credential the app is using.
+  console.log("Clerk credential being used:", process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
+
   return (
-    // The publishableKey has been added directly here for our test.
-    <ClerkProvider publishableKey="pk_live_Y2xlcmsudGVuOTkuYXBwJA">
+    <ClerkProvider>
       <html lang="en">
         <body>{children}</body>
       </html>
